@@ -6,7 +6,13 @@ const notFoundMiddleware = require("./app/middleware/not-found")
 const handleErrorMiddleware = require("./app/middleware/handler-error")
 const usersRouter = require("./app/api/users/router")
 const authRouter = require("./app/api/auth/router")
+const productsRouter = require("./app/api/products/router")
+const categoryRouter = require("./app/api/category/router")
+
 const {authenticateUser} = require("./app/middleware/auth")
+
+
+
 const app = express();
 const prefix = '/api'
 
@@ -22,6 +28,8 @@ app.get("/", async (req,res,next) => {
 
 app.use(`${prefix}/users`,usersRouter)
 app.use(`${prefix}/auth`, authRouter)
+app.use(`${prefix}/products`, productsRouter)
+app.use(`${prefix}/categories`, categoryRouter)
 // middlewares
 app.use(notFoundMiddleware);
 app.use(handleErrorMiddleware);

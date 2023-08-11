@@ -1,7 +1,6 @@
 const User = require("./model");
 const { StatusCodes } = require("http-status-codes");
 const CustomAPI = require("../../errors");
-const { storage } = require("../../middleware/multer");
 const cloudinary = require('cloudinary').v2;
 
 const getAllUser = async (req, res, next) => {
