@@ -8,6 +8,8 @@ const usersRouter = require("./app/api/users/router")
 const authRouter = require("./app/api/auth/router")
 const productsRouter = require("./app/api/products/router")
 const categoryRouter = require("./app/api/category/router")
+const transactionRouter = require("./app/api/transactions/router")
+const cors = require("cors")
 
 const {authenticateUser} = require("./app/middleware/auth")
 
@@ -16,6 +18,7 @@ const {authenticateUser} = require("./app/middleware/auth")
 const app = express();
 const prefix = '/api'
 
+app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -30,6 +33,7 @@ app.use(`${prefix}/users`,usersRouter)
 app.use(`${prefix}/auth`, authRouter)
 app.use(`${prefix}/products`, productsRouter)
 app.use(`${prefix}/categories`, categoryRouter)
+app.use(`${prefix}/transactions`, transactionRouter)
 // middlewares
 app.use(notFoundMiddleware);
 app.use(handleErrorMiddleware);
