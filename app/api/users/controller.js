@@ -1,7 +1,8 @@
 const User = require("./model");
 const { StatusCodes } = require("http-status-codes");
 const CustomAPI = require("../../errors");
-
+const { storage } = require("../../middleware/multer");
+const cloudinary = require('cloudinary').v2;
 
 const getAllUser = async (req, res, next) => {
   try {
@@ -34,6 +35,7 @@ const getOneUser = async (req, res, next) => {
 
 const updateInfoUser = async (req, res, next) => {
   try {
+
     const { userId: idUser } = req.user;
     const user = await User.findOne({ _id: idUser });
 
@@ -55,15 +57,16 @@ const updateInfoUser = async (req, res, next) => {
       const cloudinaryResponse = await cloudinary.uploader.upload(
         req.file.path,
         {
-          folder: "avatars", // Change this to your desired folder name in Cloudinary
-          allowedFormats: ["jpg", "jpeg", "png"],
-          overwrite: true,
-        }
+            folder: "uploads", // Change this to your desired folder name in Cloudinary
+            allowedFormats: ["jpg", "jpeg", "png"],
+            overwrite: true,
+          }
       );
 
       user.username = username;
       user.no_telpon = no_telpon;
-      user.avatar = cloudinaryResponse.public_id;
+      user.avatar = cloudinaryResponse.public_id
+      user.avatarUrl = cloudinaryResponse.secure_url; // Store full URL
     }
 
     // console.log("user >> ", user)

@@ -17,14 +17,32 @@ const authenticateUser = async (req, res, next) => {
     const payload = isTokenValid({ token });
 
     req.user = {
+
       username: payload.username,
       userId: payload.userId,
       role: payload.role,
       email: payload.email,
       avatar: payload.avatar,
+      avatarUrl: payload.avatarUrl,
     };
     next();
   } catch (error) {
     next(error);
   }
 };
+
+const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      throw new CustomError.UnauthorizedError(
+        'Unauthorized to access this route'
+      );
+    }
+    next();
+  };
+};
+
+module.exports = {
+    authenticateUser,
+    authorizeRoles
+}
