@@ -37,7 +37,7 @@ const createTokenPayment = async (req, res, next) => {
         no_telpon,
       },
     };
-console.log("test")
+    console.log("test");
 
     const transaction = await snap.createTransaction(parameter);
     return res.status(StatusCodes.OK).json({
@@ -119,10 +119,20 @@ const createTransaction = async (req, res, next) => {
         secure: true,
       },
       customer_details: {
-        username,
+        first_name: username, // Use first_name instead of username
         email,
-        no_telpon,
+        phone: no_telpon, // Use phone instead of no_telpon
       },
+      item_details: [
+        // Add item details for the product
+        {
+          id: checkProduct._id.toString(),
+          price: checkProduct.sell_price,
+          quantity: total_pcs,
+          name: checkProduct.name,
+          description: `Brand: ${checkProduct.brand}, Category: ${checkProduct.category}, Description: ${checkProduct.description}`
+        },
+      ],
     };
     const transaction = await snap.createTransaction(parameter);
 
