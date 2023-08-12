@@ -31,7 +31,7 @@ const getOneUser = async (req, res, next) => {
     next(error);
   }
 };
-const disableOneUser = async (req, res, next) => {
+const changeStatusUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
@@ -39,7 +39,7 @@ const disableOneUser = async (req, res, next) => {
     if (!user) {
       throw new CustomAPI.NotFoundError("User not Found");
     }
-    user.isActive = false;
+    user.isActive = !user.isActive;
     await user.save()
 
     return res.status(StatusCodes.OK).json({
@@ -126,5 +126,5 @@ module.exports = {
   getOneUser,
   updateInfoUser,
   deleteUser,
-  disableOneUser
+  changeStatusUser
 };
