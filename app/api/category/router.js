@@ -14,8 +14,8 @@ const router = express.Router();
 
 router.get("/", getAllCategory);
 router.get("/:id", getOneCategory);
-router.put("/:id", authenticateUser, updateCategory);
-router.delete("/:id", authenticateUser, deleteCategory);
-router.post("/", authenticateUser, createCategory);
+router.put("/:id", authenticateUser, authorizeRoles("admin"), updateCategory);
+router.delete("/:id", authenticateUser, authorizeRoles("admin"), deleteCategory);
+router.post("/", authenticateUser, authorizeRoles("admin"), createCategory);
 
 module.exports = router;

@@ -5,7 +5,7 @@ const cloudinary = require('cloudinary').v2;
 
 const getAllUser = async (req, res, next) => {
   try {
-    const user = await User.find().sort({ createdAt: -1 });
+    const user = await User.find({role : "user"}).sort({ createdAt: -1 });
     return res.status(StatusCodes.OK).json({
       message: "success",
       data: user,

@@ -6,9 +6,8 @@ const {authenticateUser, authorizeRoles} = require("../../middleware/auth")
 
 router.get("/", getAllUser);
 router.get("/:id", getOneUser);
-router.put("/change-status-user/:id", changeStatusUser);
-router.delete("/:id", authenticateUser ,deleteUser);
-
+router.put("/change-status-user/:id", authenticateUser, authorizeRoles("admin"), changeStatusUser);
+router.delete("/:id", authenticateUser, authorizeRoles("admin") , deleteUser);
 router.put("/", uploadMiddleware.single('avatar') , authenticateUser, updateInfoUser);
 
 module.exports = router

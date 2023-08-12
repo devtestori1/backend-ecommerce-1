@@ -8,10 +8,11 @@ const {
 } = require("./controller");
 const router = express.Router();
 const uploadMiddleware = require("../../middleware/multer");
+const { authenticateUser, authorizeRoles } = require("../../middleware/auth");
 
 router.get("/", getAllProducts);
 router.get("/:id", getOneProduct);
-router.delete("/:id", deleteProduct);
+router.delete("/:id", authenticateUser, authorizeRoles("admin"), deleteProduct);
 router.put(
   "/:id",
   uploadMiddleware.fields([
@@ -19,6 +20,8 @@ router.put(
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
   ]),
+  authenticateUser,
+  authorizeRoles("admin"),
   updateProduct
 );
 router.post(
@@ -28,6 +31,8 @@ router.post(
     { name: "image1", maxCount: 1 },
     { name: "image2", maxCount: 1 },
   ]),
+  authenticateUser,
+  authorizeRoles("admin"),
   createProduct
 );
 
