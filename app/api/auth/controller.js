@@ -19,6 +19,10 @@ const signin = async (req, res, next) => {
       throw new CustomAPI.UnauthorizedError("Invalid Credentials");
     }
 
+    if(result.isActive === false){
+      throw new CustomAPI.UnauthorizedError("Account disabled by ADMIN");
+    }
+
     const isPasswordCorrect = await result.comparePassword(password);
 
     if (!isPasswordCorrect) {
