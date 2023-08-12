@@ -5,7 +5,7 @@ const cloudinary = require('cloudinary').v2;
 
 const getAllUser = async (req, res, next) => {
   try {
-    const user = await User.find();
+    const user = await User.find().sort({ createdAt: -1 });
     return res.status(StatusCodes.OK).json({
       message: "success",
       data: user,
@@ -31,7 +31,25 @@ const getOneUser = async (req, res, next) => {
     next(error);
   }
 };
+const disableOneUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
 
+    if (!user) {
+      throw new CustomAPI.NotFoundError("User not Found");
+    }
+    user.isActive = false;
+    await user.save()
+
+    return res.status(StatusCodes.OK).json({
+      message: "success",
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 const updateInfoUser = async (req, res, next) => {
   try {
 
@@ -108,4 +126,5 @@ module.exports = {
   getOneUser,
   updateInfoUser,
   deleteUser,
+  disableOneUser
 };
