@@ -15,7 +15,7 @@ const getAllProducts = async (req, res, next) => {
     const allProducts = await Product.find(condition).populate({
       path: "category",
       select: "category_name",
-    });
+    }).sort({updatedAt : -1});
 
     return res.status(StatusCodes.OK).json({
       message: "Success",

@@ -1,5 +1,9 @@
 const midtransClient = require("midtrans-client");
-const { midtrans_server_key, mode_midtrans } = require("../../config");
+const {
+  midtrans_server_key,
+  mode_midtrans,
+  frontend_url,
+} = require("../../config");
 const snap = new midtransClient.Snap({
   isProduction: mode_midtrans === "production" ? true : false,
   serverKey: midtrans_server_key,
@@ -59,7 +63,8 @@ const getAllTransactions = async (req, res, next) => {
       .populate({
         path: "id_product",
         // select : "name description purchase_price sell_price keypoint"
-      }).sort({ updatedAt: -1 });
+      })
+      .sort({ updatedAt: -1 });
     return res.status(StatusCodes.OK).json({
       message: "success",
       data: result,
@@ -90,6 +95,26 @@ const getAllTransactionsByUser = async (req, res, next) => {
 };
 const getOneTransaction = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const result = await Transaction.findOne({ _id: id })
+      .populate({
+        path: "id_user",
+        select: "username email no_telpon",
+      })
+      .populate({
+        path: "id_product",
+        // select : "name description purchase_price sell_price keypoint"
+      });
+    return res.status(StatusCodes.OK).json({
+      message: "success",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const getOneTransactionByUser = async (req, res, next) => {
+  try {
     const { userId } = req.user;
     const { id } = req.params;
     const result = await Transaction.findOne({ id_user: userId, _id: id })
@@ -118,7 +143,7 @@ const createTransaction = async (req, res, next) => {
     if (!checkProduct) {
       throw new CustomAPI.NotFoundError("Product Not Found");
     }
-    if (checkProduct.stock - Number(total_pcs) <= 0) {
+    if (checkProduct.stock - Number(total_pcs) < 0) {
       throw new CustomAPI.BadRequestError("Stock Product Empty");
     }
     let totalPrice = Number(checkProduct.sell_price) * Number(total_pcs);
@@ -127,6 +152,8 @@ const createTransaction = async (req, res, next) => {
       id_product: id_product,
       total_price: totalPrice,
       total_pcs,
+      purchase_price: checkProduct.purchase_price,
+      sell_price: checkProduct.sell_price,
     });
 
     const parameter = {
@@ -149,9 +176,10 @@ const createTransaction = async (req, res, next) => {
           price: checkProduct.sell_price,
           quantity: total_pcs,
           name: checkProduct.name,
-          description: `Brand: ${checkProduct.brand}, Category: ${checkProduct.category}, Description: ${checkProduct.description}`
+          description: `Brand: ${checkProduct.brand}, Category: ${checkProduct.category}, Description: ${checkProduct.description}`,
         },
       ],
+      finish_redirect_url: `${frontend_url}/transactions/finish/${result._id}`, // Add this line
     };
     const transaction = await snap.createTransaction(parameter);
 
@@ -218,6 +246,23 @@ const makeTransactionDenied = async (req, res, next) => {
 
 const deleteTransaction = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const result = await Transaction.findOneAndDelete({
+      _id: id,
+    });
+    if (!result) {
+      throw new CustomAPI.NotFoundError("Not Found Transacations");
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: "Success Deleted",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const deleteTransactionByUser = async (req, res, next) => {
+  try {
     const { userId } = req.user;
     const { id } = req.params;
     const result = await Transaction.findOneAndDelete({
@@ -244,4 +289,7 @@ module.exports = {
   makeTransactionFinished,
   makeTransactionDenied,
   deleteTransaction,
+  getAllTransactionsByUser,
+  getOneTransactionByUser,
+  deleteTransactionByUser,
 };

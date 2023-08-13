@@ -15,6 +15,14 @@ const TransactionSchema = new mongoose.Schema({
         type : Number,
         required : [true, "total price must included"]
     },
+    purchase_price : {
+        type : Number,
+        required : [true, "purchase price must included"]
+    },
+    sell_price : {
+        type : Number,
+        required : [true, "purchase price must included"]
+    },
     total_pcs : {
         type : Number,
         required : [true, "total items bought must included"]

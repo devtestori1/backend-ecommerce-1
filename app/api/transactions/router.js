@@ -10,14 +10,19 @@ const {
   makeTransactionFinished,
   makeTransactionDenied,
   deleteTransaction,
+  getAllTransactionsByUser,
+  getOneTransactionByUser,
+  deleteTransactionByUser,
 } = require("./controller");
 
 router.get("/", authenticateUser, authorizeRoles("admin"), getAllTransactions);
+router.get("/user", authenticateUser,  getAllTransactionsByUser);
 router.post("/create-token", authenticateUser, createTokenPayment);
 
 router.post("/", authenticateUser, createTransaction);
 
-router.get("/:id", authenticateUser, getOneTransaction);
+router.get("/:id", authenticateUser,authorizeRoles("admin"), getOneTransaction);
+router.get("/user/:id", authenticateUser, getOneTransactionByUser);
 router.put("/mark-finish/:id", authenticateUser, makeTransactionFinished);
 router.put("/mark-denied/:id", authenticateUser, makeTransactionDenied);
 router.delete(
@@ -25,6 +30,11 @@ router.delete(
   authenticateUser,
   authorizeRoles("admin"),
   deleteTransaction
+);
+router.delete(
+  "/user/:id",
+  authenticateUser,
+  deleteTransactionByUser
 );
 
 module.exports = router;
