@@ -12,7 +12,7 @@ const {
   deleteTransaction,
 } = require("./controller");
 
-router.get("/", authenticateUser, getAllTransactions);
+router.get("/", authenticateUser, authorizeRoles("admin"), getAllTransactions);
 router.post("/create-token", authenticateUser, createTokenPayment);
 
 router.post("/", authenticateUser, createTransaction);

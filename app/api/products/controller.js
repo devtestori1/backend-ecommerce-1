@@ -114,11 +114,12 @@ const updateProduct = async (req, res, next) => {
     }
 
     const checkCategory = await Category.findOne({ _id: category });
-    if (!checkCategory) {
-      throw new CustomAPI.BadRequestError("No Category Found");
-    }
-    console.log("req.files >> ", req.files)
+    
+
     if (!req.files) {
+      if (!checkCategory) {
+        throw new CustomAPI.BadRequestError("No Category Found");
+      }
       result.name = name;
       result.description = description;
       result.purchase_price = purchase_price;
