@@ -51,6 +51,25 @@ const createTokenPayment = async (req, res, next) => {
 
 const getAllTransactions = async (req, res, next) => {
   try {
+    const result = await Transaction.find()
+      .populate({
+        path: "id_user",
+        select: "username email no_telpon",
+      })
+      .populate({
+        path: "id_product",
+        // select : "name description purchase_price sell_price keypoint"
+      });
+    return res.status(StatusCodes.OK).json({
+      message: "success",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const getAllTransactionsByUser = async (req, res, next) => {
+  try {
     const { userId } = req.user;
     const result = await Transaction.find({ id_user: userId })
       .populate({
