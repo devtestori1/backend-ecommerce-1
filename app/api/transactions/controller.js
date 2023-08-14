@@ -293,7 +293,7 @@ const callbackTransaction = async (req, res, next) => {
 };
 
 const callbackTransactionFinish = async (req, res, next) => {
-  const otherLink = "https://oriastanjung.vercel.app"; // Replace with the actual link you want to redirect to
+  const otherLink = frontend_url; // Replace with the actual link you want to redirect to
   return res.redirect(otherLink);
 };
 
