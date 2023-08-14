@@ -237,7 +237,7 @@ const callbackTransaction = async (req, res, next) => {
     const statusCode = statusResponse.status_code;
     const grossAmount = statusResponse.gross_amount;
     const fraudStatus = statusResponse.fraud_status;
-    const signatureKey = statusResponse.signatureKey;
+    const signatureKey = statusResponse.signature_key;
     console.log("signatureKey >>> ", signatureKey);
 
     const dataToHash = `${orderId}${statusCode}${grossAmount}${midtrans_server_key}`;
@@ -288,6 +288,10 @@ const callbackTransaction = async (req, res, next) => {
         });
       }
     }
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message : "Failed",
+      data : "Signature key and the sha512 not same"
+    })
   } catch (error) {
     next(error);
   }
