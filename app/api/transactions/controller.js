@@ -3,10 +3,14 @@ const {
   midtrans_server_key,
   mode_midtrans,
   frontend_url,
+  midtrans_client_key,
 } = require("../../config");
+const crypto = require("crypto");
+
 const snap = new midtransClient.Snap({
   isProduction: mode_midtrans === "production" ? true : false,
   serverKey: midtrans_server_key,
+  clientKey: midtrans_client_key,
 });
 const Transaction = require("./model");
 const Product = require("../products/model");
@@ -222,6 +226,73 @@ const makeTransactionFinished = async (req, res, next) => {
     next(error);
   }
 };
+
+const callbackTransaction = async (req, res, next) => {
+  try {
+    const statusResponse = await snap.transaction.notification(req.body);
+    console.log("Status Response >>> ", await statusResponse);
+
+    const orderId = statusResponse.order_id;
+    const transactionStatus = statusResponse.transaction_status;
+    const statusCode = statusResponse.status_code;
+    const grossAmount = statusResponse.gross_amount;
+    const fraudStatus = statusResponse.fraud_status;
+    const signatureKey = statusResponse.signatureKey;
+    console.log("signatureKey >>> ", signatureKey);
+
+    const dataToHash = `${orderId}${statusCode}${grossAmount}${midtrans_server_key}`;
+    const sha512Hash = crypto
+      .createHash("sha512")
+      .update(dataToHash)
+      .digest("hex");
+    console.log("sha512Hash >> ", sha512Hash);
+
+    console.log(
+      `Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`
+    );
+    if (sha512Hash === signatureKey) {
+      if (
+        transactionStatus === "capture" ||
+        transactionStatus === "settlement"
+      ) {
+        if (fraudStatus === "accept") {
+          const transaction = await Transaction.findOne({ _id: orderId });
+          if (!transaction) {
+            throw new CustomAPI.NotFoundError("Transaction not found");
+          }
+
+          transaction.statusPayment = "success";
+          transaction.isFinished = true;
+          await transaction.save();
+          return res.status(StatusCodes.OK).json({
+            message: "Success",
+            data: transaction,
+          });
+        }
+      } else if (
+        transactionStatus === "cancel" ||
+        transactionStatus === "deny" ||
+        transactionStatus === "expire"
+      ) {
+        const transaction = await Transaction.findOne({ _id: orderId });
+        if (!transaction) {
+          throw new CustomAPI.NotFoundError("Transaction not found");
+        }
+
+        transaction.statusPayment = "denied";
+        transaction.isFinished = true;
+        await transaction.save();
+        return res.status(StatusCodes.OK).json({
+          message: "Success",
+          data: transaction,
+        });
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 const makeTransactionDenied = async (req, res, next) => {
   try {
     const { userId } = req.user;
@@ -292,4 +363,5 @@ module.exports = {
   getAllTransactionsByUser,
   getOneTransactionByUser,
   deleteTransactionByUser,
+  callbackTransaction
 };
