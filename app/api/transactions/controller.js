@@ -238,14 +238,13 @@ const callbackTransaction = async (req, res, next) => {
     const grossAmount = statusResponse.gross_amount;
     const fraudStatus = statusResponse.fraud_status;
     const signatureKey = statusResponse.signature_key;
-  
 
     const dataToHash = `${orderId}${statusCode}${grossAmount}${midtrans_server_key}`;
     const sha512Hash = crypto
       .createHash("sha512")
       .update(dataToHash)
       .digest("hex");
-    
+
     if (sha512Hash === signatureKey) {
       if (
         transactionStatus === "capture" ||
@@ -285,18 +284,18 @@ const callbackTransaction = async (req, res, next) => {
       }
     }
     return res.status(StatusCodes.BAD_REQUEST).json({
-      message : "Failed",
-      data : "Signature key and the sha512 not same"
-    })
+      message: "Failed",
+      data: "Signature key and the sha512 not same",
+    });
   } catch (error) {
     next(error);
   }
 };
 
-const callbackTransactionFinish = async (req ,res ,next) => {
-  window.location.href="https://oriastanjung.vercel.app"
-}
-
+const callbackTransactionFinish = async (req, res, next) => {
+  const otherLink = "https://oriastanjung.vercel.app"; // Replace with the actual link you want to redirect to
+  return res.redirect(otherLink);
+};
 
 const makeTransactionDenied = async (req, res, next) => {
   try {
@@ -369,5 +368,5 @@ module.exports = {
   getOneTransactionByUser,
   deleteTransactionByUser,
   callbackTransaction,
-  callbackTransactionFinish
+  callbackTransactionFinish,
 };
