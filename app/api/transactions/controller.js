@@ -230,7 +230,7 @@ const makeTransactionFinished = async (req, res, next) => {
 const callbackTransaction = async (req, res, next) => {
   try {
     const statusResponse = await snap.transaction.notification(req.body);
-    console.log("Status Response >>> ", await statusResponse);
+    // console.log("Status Response >>> ", await statusResponse);
 
     const orderId = statusResponse.order_id;
     const transactionStatus = statusResponse.transaction_status;
@@ -238,18 +238,14 @@ const callbackTransaction = async (req, res, next) => {
     const grossAmount = statusResponse.gross_amount;
     const fraudStatus = statusResponse.fraud_status;
     const signatureKey = statusResponse.signature_key;
-    console.log("signatureKey >>> ", signatureKey);
+  
 
     const dataToHash = `${orderId}${statusCode}${grossAmount}${midtrans_server_key}`;
     const sha512Hash = crypto
       .createHash("sha512")
       .update(dataToHash)
       .digest("hex");
-    console.log("sha512Hash >> ", sha512Hash);
-
-    console.log(
-      `Transaction notification received. Order ID: ${orderId}. Transaction status: ${transactionStatus}. Fraud status: ${fraudStatus}`
-    );
+    
     if (sha512Hash === signatureKey) {
       if (
         transactionStatus === "capture" ||
@@ -296,6 +292,11 @@ const callbackTransaction = async (req, res, next) => {
     next(error);
   }
 };
+
+const callbackTransactionFinish = async (req ,res ,next) => {
+  window.location.href="https://oriastanjung.vercel.app"
+}
+
 
 const makeTransactionDenied = async (req, res, next) => {
   try {
@@ -367,5 +368,6 @@ module.exports = {
   getAllTransactionsByUser,
   getOneTransactionByUser,
   deleteTransactionByUser,
-  callbackTransaction
+  callbackTransaction,
+  callbackTransactionFinish
 };

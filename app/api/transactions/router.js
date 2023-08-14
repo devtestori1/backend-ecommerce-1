@@ -14,12 +14,15 @@ const {
   getOneTransactionByUser,
   deleteTransactionByUser,
   callbackTransaction,
+  callbackTransactionFinish,
 } = require("./controller");
 
 router.get("/", authenticateUser, authorizeRoles("admin"), getAllTransactions);
 router.get("/user", authenticateUser,  getAllTransactionsByUser);
 router.post("/create-token", authenticateUser, createTokenPayment);
+
 router.post("/payments/handling", callbackTransaction);
+router.post("/payments/handling/finish", callbackTransactionFinish);
 
 router.post("/", authenticateUser, createTransaction);
 
