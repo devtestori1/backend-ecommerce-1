@@ -88,7 +88,7 @@ const getAllTransactionsByUser = async (req, res, next) => {
       .populate({
         path: "id_product",
         // select : "name description purchase_price sell_price keypoint"
-      });
+      }).sort({ updatedAt: -1 });
     return res.status(StatusCodes.OK).json({
       message: "success",
       data: result,
